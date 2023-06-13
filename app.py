@@ -49,13 +49,21 @@ def index():
 @app.route("/login",methods=["GET","POST"])
 def login():
     if request.method == "POST":                                 #這裡沒有亮藍色
+        type="登入失敗"
         name =request.form.get("account")
         password=request.form.get("password")
-        if name == "ibuki1129" and password =="1234":
-            type ="成功"
+        with get_db() as cur: #with get_db().cursor() as cur:
+            cur.row_factory = sql.Row
+            cur = cur.cursor() #上面的註解可以把這行省略
+            cur.execute(f"select * from Users")
+            data = cur.fetchall()
+            cur.close()
+        for i in data:
+            if name == i["account"] and password == i["password"]:
+                type ="成功"
+                break
             return render_template("page2.html",id=name,ps=password,type=type)
-        else:
-            type="登入失敗"
+        if type == "成功":
             return render_template("login.html",type=type)
     else:
         return render_template("login.html")
