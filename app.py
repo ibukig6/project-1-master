@@ -72,7 +72,7 @@ def users():
 
 @app.route("/createuser",methods=["POST"])
 def createuser():
-    name = request.form.get("username")
+    name = request.form.get("username")   #沒有亮黃光
     if name =="":name = "User"
     account = request.form.get("account")
     password = request.form.get("password")
