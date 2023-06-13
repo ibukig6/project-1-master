@@ -44,9 +44,13 @@
                     <div class="sb-sidenav-menu">
                         <div class="nav">
                             <div class="sb-sidenav-menu-heading">Core</div>
-                            <a class="nav-link" href="index.html">
+                            <a class="nav-link" href="/login">
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                                 Dashboard
+                            </a>
+                            <a class="nav-link" href="/users">
+                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                管理使用者                                                                          <!--Users-->
                             </a>
                             <div class="sb-sidenav-menu-heading">Interface</div>
                             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
@@ -111,7 +115,7 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
-                        <h1 class="mt-4">Dashboard</h1>
+                        
                         {% block main %}
                         {% endblock main %}
                     </div>

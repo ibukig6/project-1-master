@@ -51,7 +51,7 @@ def login():
     if request.method == "POST":                                 #這裡沒有亮藍色
         name =request.form.get("account")
         password=request.form.get("password")
-        if name == "123" and password =="123":
+        if name == "ibuki1129" and password =="1234":
             type ="成功"
             return render_template("page2.html",id=name,ps=password,type=type)
         else:
@@ -83,7 +83,29 @@ def createuser():
         cur.close()
     flash('新增成功')
     return redirect(url_for('users'))
-    return render_template("users.html",data = data)
+    return render_template("users.html",data = data)                                               ###所以這行能刪掉嗎?###
+
+@app.route("/edit/<int:id>",methods=["GET","POST"])
+def edit(id):
+    if request.method =="POST":
+        name = request.form.get("username")   #沒有亮黃光
+        account = request.form.get("account")
+        password = request.form.get("password")
+        with get_db() as cur: #with get_db().cursor() as cur:
+            cur.row_factory = sql.Row
+            cur = cur.cursor() #上面的註解可以把這行省略
+            cur.execute(f"UPDATE Users SET name='{ name }', account='{account}', password='{password}' WHERE id='{id}';")
+            data = cur.fetchone()
+            cur.close()
+        flash('修改成功')
+        return redirect(url_for('users'))
+    else:
+        with get_db() as cur: #with get_db().cursor() as cur:
+            cur.row_factory = sql.Row
+            cur = cur.cursor() #上面的註解可以把這行省略
+            cur.execute(f"select * from Users where id = {id}")
+            data = cur.fetchone()
+            return render_template("edit.html",data = data)
 
 @app.route("/deleteuser/<int:id>",methods=["POST"])
 def deleteuser(id):
