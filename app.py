@@ -3,6 +3,8 @@ import sqlite3 as sql                          #↑
 #from flask import g----------------------------↑在這上面，一種省略寫法
 import os
 import uuid
+import hashlib
+
 DATABASE = 'database.db'
 
 UPLOAD_FOLDER = 'static/images2/'
@@ -29,6 +31,10 @@ def allowed_file(filename):
     if '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
         x = filename.rsplit('.', 1)[1].lower()
     return x
+
+def sha256(password):
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+
 
 @app.route("/")
 def hello_python():
@@ -65,6 +71,7 @@ def login():
         type = "登入失敗"
         name = request.form.get("account")
         password = request.form.get("password")
+        password = sha256(password)
         with get_db() as cur: #with get_db().cursor() as cur:
             cur.row_factory = sql.Row
             cur = cur.cursor() #上面的註解可以把這行省略
@@ -96,6 +103,7 @@ def createuser():
     if name =="":name = "User"
     account = request.form.get("account")
     password = request.form.get("password")
+    password = sha256(password)
     with get_db() as cur: #with get_db().cursor() as cur:
         cur.row_factory = sql.Row
         cur = cur.cursor() #上面的註解可以把這行省略
@@ -111,6 +119,7 @@ def edit(id):
         name = request.form.get("username")   #沒有亮黃光
         account = request.form.get("account")
         password = request.form.get("password")
+        password = sha256(password)
         with get_db() as cur: #with get_db().cursor() as cur:
             cur.row_factory = sql.Row
             cur = cur.cursor() #上面的註解可以把這行省略
