@@ -164,10 +164,38 @@ def show():
     with get_db() as cur: #with get_db().cursor() as cur:
         cur.row_factory = sql.Row
         cur = cur.cursor() #上面的註解可以把這行省略
-        cur.execute("select * from Pictures")
+        cur.execute("select * from Pictures order by p_order")
         data = cur.fetchall()
         cur.close()
     return render_template("show.html",data=data)
+
+@app.route("/pictures")
+def pictures():
+    with get_db() as cur: #with get_db().cursor() as cur:
+        cur.row_factory = sql.Row
+        cur = cur.cursor() #上面的註解可以把這行省略
+        cur.execute("select * from Pictures")
+        data = cur.fetchall()
+        length = len(data)
+        cur.close()
+    return render_template("pictures.html",data=data,len=length)
+
+@app.route("/MP",methods=["POST"])
+def MP():
+    with get_db() as cur: #with get_db().cursor() as cur:
+        id = request.form.get("id")
+        fun = request.form.get("fun")
+        if fun == "修改":
+            p_order = request.form.get("p_order")
+            with get_db() as cur: #with get_db().cursor() as cur:
+                cur.row_factory = sql.Row
+                cur = cur.cursor() #上面的註解可以把這行省略
+                cur.execute(f"UPDATE Pictures SET p_order='{ p_order }' WHERE id='{id}';")
+                cur.close()
+            flash("修改成功")
+        else:
+            pass
+        return redirect(url_for("pictures"))
 
 if __name__ =="__main__":
     app.secret_key = "Your Key"
