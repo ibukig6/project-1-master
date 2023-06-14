@@ -155,6 +155,7 @@ def upload():
                 cur = cur.cursor() #上面的註解可以把這行省略
                 data = cur.execute(f"select * from Pictures")
                 order = 0
+                length =len(data)
                 for i in data:
                     if i["p_order"] > order:
                         order = i["p_order"]
@@ -179,9 +180,12 @@ def pictures():
     with get_db() as cur: #with get_db().cursor() as cur:
         cur.row_factory = sql.Row
         cur = cur.cursor() #上面的註解可以把這行省略
-        cur.execute("select * from Pictures")
+        cur.execute("select * from Pictures order by p_order")
         data = cur.fetchall()
         length = len(data)
+        for i in data:
+            if i["p_order"] > length:
+                length = i["p_order"]
         cur.close()
     return render_template("pictures.html",data=data,len=length)
 
