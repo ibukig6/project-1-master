@@ -153,7 +153,12 @@ def upload():
             with get_db() as cur: #with get_db().cursor() as cur:
                 cur.row_factory = sql.Row
                 cur = cur.cursor() #上面的註解可以把這行省略
-                cur.execute(f"INSERT INTO Pictures (p_name) VALUES ('{name}');")
+                data = cur.execute(f"select * from Pictures")
+                order = 0
+                for i in data:
+                    if i["p_order"] > order:
+                        order = i["p_order"]
+                cur.execute(f"INSERT INTO Pictures (p_name,p_order) VALUES ('{name}','{order+1}');")
                 cur.close()
             f.save(os.path.join(app.config['UPLOAD_FOLDER'], name))
         return render_template("upload.html",type=type)
@@ -164,7 +169,7 @@ def show():
     with get_db() as cur: #with get_db().cursor() as cur:
         cur.row_factory = sql.Row
         cur = cur.cursor() #上面的註解可以把這行省略
-        cur.execute("select * from Pictures order by p_order")
+        cur.execute("select * from Pictures order by p_order") #DESC，由大排到小，放在p_order後面
         data = cur.fetchall()
         cur.close()
     return render_template("show.html",data=data)
@@ -194,7 +199,14 @@ def MP():
                 cur.close()
             flash("修改成功")
         else:
-            pass
+            p_name = request.form.get("p_name")
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], p_name))           #刪除跑不動
+            with get_db() as cur:
+                cur.row_factory = sql.Row
+                cur = cur.cursor()
+                cur.execute(f"DELETE FROM Pictures SET WHERE id='{id}';")
+                cur.close()
+            flash("刪除成功")
         return redirect(url_for("pictures"))
 
 if __name__ =="__main__":
