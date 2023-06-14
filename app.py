@@ -1,9 +1,16 @@
 from flask import Flask,render_template,request,g,redirect,url_for,flash
 import sqlite3 as sql                          #↑
 #from flask import g----------------------------↑在這上面，一種省略寫法
+import os
+import uuid
 DATABASE = 'database.db'
 
+UPLOAD_FOLDER = 'static/images2/'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
 app = Flask(__name__)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -16,6 +23,12 @@ def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
+
+def allowed_file(filename):
+    x = ""
+    if '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
+        x = filename.rsplit('.', 1)[1].lower()
+    return x
 
 @app.route("/")
 def hello_python():
@@ -49,9 +62,9 @@ def index():
 @app.route("/login",methods=["GET","POST"])
 def login():
     if request.method == "POST":                                 #這裡沒有亮藍色
-        type="登入失敗"
-        name =request.form.get("account")
-        password=request.form.get("password")
+        type = "登入失敗"
+        name = request.form.get("account")
+        password = request.form.get("password")
         with get_db() as cur: #with get_db().cursor() as cur:
             cur.row_factory = sql.Row
             cur = cur.cursor() #上面的註解可以把這行省略
@@ -61,9 +74,8 @@ def login():
         for i in data:
             if name == i["account"] and password == i["password"]:
                 type ="成功"
-                break
-            return render_template("page2.html",id=name,ps=password,type=type)
-        if type == "成功":
+                return render_template("page2.html",id=name,ps=password,type=type)
+        else:
             return render_template("login.html",type=type)
     else:
         return render_template("login.html")
@@ -128,6 +140,19 @@ def deleteuser(id):
     return redirect(url_for('users'))
     #return render_template("users.html",data=data)
 
+@app.route("/upload",methods=["GET","POST"])
+def upload():
+    if request.method == "POST":
+        f = request.files["file"]
+        f.filename = allowed_file(f.filename)
+        name = str(uuid.uuid4())+"."+f.filename
+        if f.filename == "":
+            type = "副檔名不符"
+        else:
+            type="新增成功"
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'], name))
+        return render_template("upload.html",type=type)
+    return render_template("upload.html")
 
 if __name__ =="__main__":
     app.secret_key = "Your Key"
