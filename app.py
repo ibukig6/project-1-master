@@ -150,9 +150,24 @@ def upload():
             type = "副檔名不符"
         else:
             type="新增成功"
+            with get_db() as cur: #with get_db().cursor() as cur:
+                cur.row_factory = sql.Row
+                cur = cur.cursor() #上面的註解可以把這行省略
+                cur.execute(f"INSERT INTO Pictures (p_name) VALUES ('{name}');")
+                cur.close()
             f.save(os.path.join(app.config['UPLOAD_FOLDER'], name))
         return render_template("upload.html",type=type)
     return render_template("upload.html")
+
+@app.route("/show")
+def show():
+    with get_db() as cur: #with get_db().cursor() as cur:
+        cur.row_factory = sql.Row
+        cur = cur.cursor() #上面的註解可以把這行省略
+        cur.execute("select * from Pictures")
+        data = cur.fetchall()
+        cur.close()
+    return render_template("show.html",data=data)
 
 if __name__ =="__main__":
     app.secret_key = "Your Key"

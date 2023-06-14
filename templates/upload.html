@@ -11,7 +11,7 @@
 <script>
     Success("{{type}}", "新增成功");
 </script>
-{% else %}
+{% elif type == "副檔名不符" %}
 <script>
     Swal.fire({
     icon: 'error',
